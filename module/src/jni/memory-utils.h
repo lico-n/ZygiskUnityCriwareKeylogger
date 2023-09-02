@@ -1,0 +1,9 @@
+#ifndef ZYGISKUNITYCRIWAREKEYEXTRACTOR_MEMORY_UTILS_H
+#define ZYGISKUNITYCRIWAREKEYEXTRACTOR_MEMORY_UTILS_H
+
+#include <cinttypes>
+#include <string>
+
+std::string read_system_string(uint64_t addr);
+
+#endif  // ZYGISKUNITYCRIWAREKEYEXTRACTOR_MEMORY_UTILS_H

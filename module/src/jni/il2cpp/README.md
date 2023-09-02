@@ -1,0 +1,1 @@
+Based on https://github.com/Perfare/Zygisk-Il2CppDumper

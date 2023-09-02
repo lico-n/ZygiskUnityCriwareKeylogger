@@ -1,0 +1,14 @@
+ext {
+    // Magisk Module
+    magiskModuleId = "zygiskunitycriwarekeylogger"
+    moduleName = "ZygiskUnityCriwareKeylogger"
+    moduleAuthor = "lico-n"
+    moduleDescription = "Logs criware keys from unity games via zygisk"
+    moduleVersion = "v1.0.0"
+    moduleVersionCode = 1
+
+    // Riru
+    moduleMinRiruApiVersion = 24
+    moduleMinRiruVersionName = "24.0.0"
+    moduleMaxRiruApiVersion = 26
+}
