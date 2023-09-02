@@ -25,10 +25,6 @@ static void forkAndSpecializePre(
     app_name = std::string(raw_app_name);
     env->ReleaseStringUTFChars(*niceName, raw_app_name);
 
-    if (!should_hook(app_name)) {
-        return;
-    }
-
 #if defined(__i386__) || defined(__x86_64__)
     emulated_module = prepare_emulation();
 #endif
