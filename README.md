@@ -40,7 +40,7 @@ So I would recommend to only enable the module whenever you want to extract a ke
 
 Yes, but it is only tested on 64-bit ldplayer, nox and memu. Other emulators might or might not work.
 In case your emulator crashes at startup, please create an issue with logs `adb logcat -s ZygiskUnityCriwareKeylogger`
-and it should possible to add support.
+and it should be possible to add support.
 
 
 ## Credits
