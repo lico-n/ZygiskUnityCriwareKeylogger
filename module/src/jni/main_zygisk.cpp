@@ -20,7 +20,7 @@ class MyModule : public zygisk::ModuleBase {
         const char *raw_app_name = env->GetStringUTFChars(args->nice_name, nullptr);
         this->app_name = std::string(raw_app_name);
         this->env->ReleaseStringUTFChars(args->nice_name, raw_app_name);
-        
+
 #if defined(__i386__) || defined(__x86_64__)
         emulated_module = prepare_emulation();
 #endif

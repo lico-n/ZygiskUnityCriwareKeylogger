@@ -24,21 +24,7 @@ std::string uint64_to_hex(uint64_t val) {
     return ss.str();
 }
 
-pid_t (*orig_initialize)(
-    uint64_t key,
-    uint64_t authentication_file,
-    uint64_t enableAtomDecryption,
-    uint64_t enableManaDecryption
-);
-
-pid_t initialize_replacement(
-    uint64_t key,
-    uint64_t authentication_file,
-    uint64_t enableAtomDecryption,
-    uint64_t enableManaDecryption) {
-
-    LOGI("Intialize called");
-
+void print_key(uint64_t key) {
     auto key_string = read_system_string(key);
 
     LOGI("Extracted Key: %s", key_string.c_str());
@@ -46,10 +32,68 @@ pid_t initialize_replacement(
     auto parsed_key = std::strtoull(key_string.c_str(), nullptr, 10);
 
     LOGI("Extracted Key (hex): 0x%s", uint64_to_hex(parsed_key).c_str());
-
-    return orig_initialize(key, authentication_file, enableAtomDecryption, enableManaDecryption);
 }
 
+pid_t (*original_initialize_4)(
+    uint64_t key,
+    uint64_t authentication_file,
+    uint64_t enableAtomDecryption,
+    uint64_t enableManaDecryption
+);
+
+pid_t replacement_initialize_4(
+    uint64_t key,
+    uint64_t authentication_file,
+    uint64_t enableAtomDecryption,
+    uint64_t enableManaDecryption) {
+
+    LOGI("Initialize (4 params) called");
+
+    print_key(key);
+
+    return original_initialize_4(key, authentication_file, enableAtomDecryption, enableManaDecryption);
+}
+
+pid_t (*original_initialize_3)(
+    uint64_t key,
+    uint64_t enableAtomDecryption,
+    uint64_t enableManaDecryption
+);
+
+pid_t replacement_initialize_3(
+    uint64_t key,
+    uint64_t enableAtomDecryption,
+    uint64_t enableManaDecryption) {
+
+    LOGI("Initialize (3 params) called");
+
+    print_key(key);
+
+    return original_initialize_3(key, enableAtomDecryption, enableManaDecryption);
+}
+
+void install_hook(
+    const std::vector<class_method> &methods,
+    uint32_t parameter_count,
+    void *replacement_func,
+    void **orig_func) {
+
+    for (auto &method : methods) {
+        if (method.parameter_count != parameter_count) {
+            continue;
+        }
+
+        DobbyHook(
+            reinterpret_cast<void *>(method.absolute_addr),
+            replacement_func,
+            orig_func);
+
+
+        LOGI("Installed hook for CriWareDecrypter.Initialize (%d parameters) RVA: 0x%" PRIx64 " VA: 0x%" PRIx64,
+             parameter_count, method.relative_addr, method.absolute_addr);
+        return;
+    }
+}
 
 void *get_unity_handle() {
     int max_wait_for_unity_seconds = 10;
@@ -80,22 +124,17 @@ void check_and_hook(std::string app_name) {
 
     auto methods = il2cpp_find_class_method("CriWareDecrypter", "Initialize");
 
-    for (auto &method : methods) {
-        if (method.parameter_count != 4) {
-            continue;
-        }
+    install_hook(
+        methods,
+        4,
+        reinterpret_cast<void *>(replacement_initialize_4),
+        reinterpret_cast<void **>(&original_initialize_4));
 
-        LOGI("Detected CriWareDecrypter.Initialize RVA: 0x%" PRIx64 " VA: 0x%" PRIx64,
-             method.relative_addr, method.absolute_addr);
-
-        DobbyHook(
-            reinterpret_cast<void *>(method.absolute_addr),
-            reinterpret_cast<void *>(initialize_replacement),
-            reinterpret_cast<void **>(&orig_initialize));
-
-        LOGI("Installed hook");
-        return;
-    }
+    install_hook(
+        methods,
+        3,
+        reinterpret_cast<void *>(replacement_initialize_3),
+        reinterpret_cast<void **>(&original_initialize_3));
 }
 
 void run_hook_thread(std::string const &app_name, std::optional<emulation_module> emulated_module) {
@@ -110,7 +149,7 @@ void run_hook_thread(std::string const &app_name, std::optional<emulation_module
 #endif
 }
 
-bool should_hook(std::string const& app_name) {
+bool should_hook(std::string const &app_name) {
     std::vector<std::string> black_list = {
         "com.google.",
         "com.android.",
@@ -121,7 +160,7 @@ bool should_hook(std::string const& app_name) {
         "WebViewLoader",  // memu
     };
 
-    for (auto & do_not_hook :  black_list) {
+    for (auto &do_not_hook : black_list) {
         if (app_name.rfind(do_not_hook, 0) != std::string::npos) {
             LOGI("App skipped: %s", app_name.c_str());
             return false;

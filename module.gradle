@@ -4,7 +4,7 @@ ext {
     moduleName = "ZygiskUnityCriwareKeylogger"
     moduleAuthor = "lico-n"
     moduleDescription = "Logs criware keys from unity games via zygisk"
-    moduleVersion = "v1.0.0"
+    moduleVersion = "v1.1.0"
     moduleVersionCode = 1
 
     // Riru
