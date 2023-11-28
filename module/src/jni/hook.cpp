@@ -34,14 +34,14 @@ void print_key(uint64_t key) {
     LOGI("Extracted Key (hex): 0x%s", uint64_to_hex(parsed_key).c_str());
 }
 
-pid_t (*original_initialize_4)(
+uint64_t (*original_initialize_4)(
     uint64_t key,
     uint64_t authentication_file,
     uint64_t enableAtomDecryption,
     uint64_t enableManaDecryption
 );
 
-pid_t replacement_initialize_4(
+uint64_t replacement_initialize_4(
     uint64_t key,
     uint64_t authentication_file,
     uint64_t enableAtomDecryption,
@@ -54,13 +54,13 @@ pid_t replacement_initialize_4(
     return original_initialize_4(key, authentication_file, enableAtomDecryption, enableManaDecryption);
 }
 
-pid_t (*original_initialize_3)(
+uint64_t (*original_initialize_3)(
     uint64_t key,
     uint64_t enableAtomDecryption,
     uint64_t enableManaDecryption
 );
 
-pid_t replacement_initialize_3(
+uint64_t replacement_initialize_3(
     uint64_t key,
     uint64_t enableAtomDecryption,
     uint64_t enableManaDecryption) {
